@@ -109,18 +109,11 @@ router.get('/api/profile', isLoggedIn,  (req, res) => {
 
 //cerrar sesion
 router.get('/api/logout', (req, res) => {
-  var token = req.headers['authorization']
-  if(!token){
-    return res.json( {message: 'fail', code: '404', info: 'NotFound'} );
-  }
-  
-  token = token.replace('Bearer ', '');
-  jwt.destroy(token);
-  /*  req.session.user = "";
+  req.session.user = "";
   req.session.token = "";
   req.session.secret = ""
   req.logOut();
-  res.json( {message: 'success', code: '200', info: 'logout'} ); */
+  res.json( {message: 'success', code: '200', info: 'logout'} );
 });
 
 //si la pagina no existe 
