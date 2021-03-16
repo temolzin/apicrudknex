@@ -1,10 +1,17 @@
+//manejo de sesiones
 const express = require('express');
+//manejo de rutas
 const router = express.Router();
+//manejo de sesiones
 const passport = require('passport');
+//manejo de sesion
 const jwt = require('jsonwebtoken');
+//generador de cadenas aleatorias
 const randomstring = require("randomstring");
 
-/* const pool = require('../database');
+/* 
+habilitar con logeo directo en database
+const pool = require('../database');
 const helpers = require('../lib/helpers'); */
 
 const { isLoggedIn } = require('../lib/auth');
@@ -57,10 +64,9 @@ router.post('/api/login', (req, res, next) => {
     if(passportUser) {
       req.session.user = passportUser;
       //console.log(passportUser)
-      
       ///token jwt
       const secret = randomstring.generate({
-        length: 12,
+        length: 15,
         charset: 'alphabetic'
       });
 
@@ -70,7 +76,7 @@ router.post('/api/login', (req, res, next) => {
         user: passportUser
       },
         secret
-      )
+      );
 
       req.session.token = token;
       //console.log(token)
@@ -83,28 +89,7 @@ router.post('/api/login', (req, res, next) => {
 
 //el usuario que esta logeado actualmente
 router.get('/api/profile', isLoggedIn,  (req, res) => {
-  ///api jwt
-  var token = req.headers['authorization']
-  if(!token){
-    return res.json( {message: 'fail', code: '404', info: 'NotFound'} );
-  }
-  token = token.replace('Bearer ', '')
-  /* console.log('token header: ',token)
-  console.log('token sesion: ',req.session.token) */
-
-  //verificamos si el token de la sesion actual corresponde con el del encabezado de la peticion
-  if(req.session.token == token){
-    jwt.verify(token, req.session.secret , function(err, decoded) {
-      //console.log('data: ',err , decoded.user) // bar
-      if (err) {
-        return res.json( {message: 'fail', code: '401', info: 'Token invalid'} ); 
-      } else {
-        return res.json({ message: 'success', code: '200', info: 'isloggein', user: decoded.user })
-      }
-    });
-  }else{
-    return res.json( {message: 'fail', code: '401', info: 'Token Header invalid'} ); 
-  }
+  return res.json({ message: 'success', code: '200', info: 'isLoggin', user: req.session.user })
 });
 
 //cerrar sesion
