@@ -124,8 +124,8 @@ router.get('/api/logout', (req, res) => {
 });
 
 //si la pagina no existe 
-router.get('*', (req, res) => {
-  res.json( {message: 'fail', code: '404', info: 'PageNotFound'} );
-});
+// router.get('*', (req, res) => {
+//   res.json( {message: 'fail', code: '404', info: 'PageNotFound'} );
+// });
 
 module.exports = router;
