@@ -100,6 +100,14 @@ router.get('/api/profile', isLoggedIn,  (req, res) => {
 //registrar un usuario
 router.post('/api/register' ,  async (req, res) => {
   const { username, password, fullname } = req.body;
+
+  if (!username) {
+    res.json( {message: 'Incorrect', code: '401', info: 'Unauthorized'} );
+  }
+
+  if (!password) {
+    res.json( {message: 'Incorrect', code: '401', info: 'Unauthorized'} );
+  }
   
   let newUser = {
     fullname,
