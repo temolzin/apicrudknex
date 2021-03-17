@@ -102,11 +102,15 @@ router.post('/api/register' ,  async (req, res) => {
   const { username, password, fullname } = req.body;
 
   if (!username) {
-    res.json( {message: 'Incorrect', code: '401', info: 'Unauthorized'} );
+    res.json( {message: 'Incorrect', code: '401', info: 'Campos Requeridos'} );
   }
 
   if (!password) {
-    res.json( {message: 'Incorrect', code: '401', info: 'Unauthorized'} );
+    res.json( {message: 'Incorrect', code: '401', info: 'Campos Requeridos'} );
+  }
+
+  if (!fullname) {
+    res.json( {message: 'Incorrect', code: '401', info: 'Campos Requeridos'} );
   }
   
   let newUser = {
