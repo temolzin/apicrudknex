@@ -60,6 +60,8 @@ router.post('/api/login', (req, res, next) => {
   req.session.secret = ""
   req.logOut();
 
+  const token = ''; 
+
   return passport.authenticate('local.signin', { session: false }, (err, passportUser, info) => {
     //console.log('apiiiiii: ',passportUser)
     if(err) {
@@ -68,24 +70,24 @@ router.post('/api/login', (req, res, next) => {
     
     if(passportUser) {
       req.session.user = passportUser;
-      //console.log(passportUser)
-      ///token jwt
-      const secret = randomstring.generate({
-        length: 15,
-        charset: 'alphabetic'
-      });
-
-      req.session.secret = secret;
+      console.log(passportUser)
       
-      const token = jwt.sign({
-        user: passportUser
-      },
-        secret
-      );
+      const secret = randomstring.generate( { length: 15, charset: 'alphabetic' } );
+      
+      req.session.secret = secret;
+      ///token jwt
+      //verificamos si existe un token de sesion 
+      const token = jwt.sign( { user: passportUser } , secret );
+      passportUser.token = token
 
+      //no hay token de sesion asignado
+      const result = pool.query('UPDATE users set ? WHERE id = ?', [passportUser, passportUser.id]);
+      console.log(result)
       req.session.token = token;
+        
+      res.json( {message: 'success', code: '200', info: 'ok', user: passportUser} );
+      
       //console.log(token)
-      res.json( {message: 'success', code: '200', info: 'ok', user: passportUser, token: token} );
     }else{
       res.json( {message: 'Incorrect', code: '400', info: 'Bad Request'} );
     }
@@ -120,7 +122,7 @@ router.post('/api/register' ,  async (req, res) => {
   };
   //console.log(newUser)
   newUser.password = await helpers.encryptPassword(password);
-  console.log(newUser)
+  //console.log(newUser)
   const result = await pool.query('INSERT INTO users SET ? ', newUser);
 
   newUser.id = result.insertId;
