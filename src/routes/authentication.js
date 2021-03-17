@@ -69,21 +69,19 @@ router.post('/api/login', (req, res, next) => {
     }
     
     if(passportUser) {
-      req.session.user = passportUser;
-      console.log(passportUser)
-      
+      //console.log(passportUser)
+      //cadena secreta para la proteger sesión
       const secret = randomstring.generate( { length: 15, charset: 'alphabetic' } );
       
-      req.session.secret = secret;
       ///token jwt
-      //verificamos si existe un token de sesion 
       const token = jwt.sign( { user: passportUser } , secret );
       passportUser.token = token
-
-      //no hay token de sesion asignado
+      //actualizamos el token de sesion en base de datos
       const result = pool.query('UPDATE users set ? WHERE id = ?', [passportUser, passportUser.id]);
-      console.log(result)
+            
+      req.session.secret = secret;
       req.session.token = token;
+      req.session.user = passportUser;
         
       res.json( {message: 'success', code: '200', info: 'ok', user: passportUser} );
       
@@ -135,7 +133,10 @@ router.post('/api/register' ,  async (req, res) => {
 });
 
 //cerrar sesion
-router.get('/api/logout', (req, res) => {
+router.get('/api/logout', async (req, res) => {
+  //eliminamos token de sesion
+  req.session.user.token = "";
+  const result = await pool.query('UPDATE users set ? WHERE id = ?', [req.session.user, req.session.user.id]);
   req.session.user = "";
   req.session.token = "";
   req.session.secret = ""
