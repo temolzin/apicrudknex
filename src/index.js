@@ -86,8 +86,39 @@ app.use((req, res, next) => {
 // routes
 app.use(require('./routes/index'));
 app.use(require('./routes/authentication'));
-app.use('/links', require('./routes/links'));
 app.use(require('./routes/cliente'));
+app.use(require('./routes/agente'));
+app.use(require('./routes/bundle'));
+app.use(require('./routes/catalogo_categoria'));
+app.use(require('./routes/catalogo_estado'));
+app.use(require('./routes/catalogo_fabricante'));
+app.use(require('./routes/catalogo_grupo'));
+app.use(require('./routes/catalogo_tipo'));
+app.use(require('./routes/catalogo_unidad'));
+app.use(require('./routes/direccion'));
+app.use(require('./routes/direccion_cliente'));
+app.use(require('./routes/empresa'));
+app.use(require('./routes/modulos'));
+app.use(require('./routes/moneda'));
+app.use(require('./routes/orden'));
+app.use(require('./routes/orden_estado'));
+app.use(require('./routes/orden_prioridad'));
+app.use(require('./routes/pagos'));
+app.use(require('./routes/pagos_estado'));
+app.use(require('./routes/pagos_orden'));
+app.use(require('./routes/pagos_prioridad'));
+app.use(require('./routes/pagos_tipo'));
+app.use(require('./routes/permisos'));
+app.use(require('./routes/poliza'));
+app.use(require('./routes/producto'));
+app.use(require('./routes/prospecto'));
+app.use(require('./routes/roles'));
+app.use(require('./routes/servicio'));
+app.use(require('./routes/submodulos'));
+app.use(require('./routes/sucursal'));
+app.use(require('./routes/territorio'));
+app.use(require('./routes/usuario'));
+app.use(require('./routes/wishlist'));
 
 // carpeta public
 app.use(express.static(path.join(__dirname, 'public')));
