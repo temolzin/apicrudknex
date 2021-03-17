@@ -9,10 +9,10 @@ const jwt = require('jsonwebtoken');
 //generador de cadenas aleatorias
 const randomstring = require("randomstring");
 
-/* 
-habilitar con logeo directo en database
+//conexion con la base de datos
 const pool = require('../database');
-const helpers = require('../lib/helpers'); */
+//modulo de encriptacion del password
+const helpers = require('../lib/helpers'); 
 
 const { isLoggedIn } = require('../lib/auth');
 
@@ -55,6 +55,11 @@ router.post('/api/login', (req, res, next) => {
     res.json( {message: 'Incorrect', code: '401', info: 'Unauthorized'} );
   }
 
+  req.session.user = "";
+  req.session.token = "";
+  req.session.secret = ""
+  req.logOut();
+
   return passport.authenticate('local.signin', { session: false }, (err, passportUser, info) => {
     //console.log('apiiiiii: ',passportUser)
     if(err) {
@@ -87,9 +92,32 @@ router.post('/api/login', (req, res, next) => {
   })(req, res, next); 
 });
 
-//el usuario que esta logeado actualmente
+//obtener el usuario que esta logeado actualmente
 router.get('/api/profile', isLoggedIn,  (req, res) => {
   return res.json({ message: 'success', code: '200', info: 'isLoggin', user: req.session.user })
+});
+
+//registrar un usuario
+router.post('/api/register' ,  async (req, res) => {
+  const { username, password, fullname } = req.body;
+  
+  let newUser = {
+    fullname,
+    username,
+    password
+  };
+  //console.log(newUser)
+  newUser.password = await helpers.encryptPassword(password);
+  console.log(newUser)
+  const result = await pool.query('INSERT INTO users SET ? ', newUser);
+
+  newUser.id = result.insertId;
+  //console.log('id de insercion', result.insertId)
+  if(result.affectedRows != 0){
+    return res.json({ message: 'success', code: '200', info: 'Register', id: result.insertId })
+  }else{
+    res.json( {message: 'fail', code: '400', info: 'Bad Request'} );
+  }
 });
 
 //cerrar sesion
@@ -102,8 +130,8 @@ router.get('/api/logout', (req, res) => {
 });
 
 //si la pagina no existe 
-router.get('*', (req, res) => {
+/* router.get('*', (req, res) => {
   res.json( {message: 'fail', code: '404', info: 'PageNotFound'} );
-});
+}); */
 
 module.exports = router;
