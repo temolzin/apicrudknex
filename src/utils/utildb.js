@@ -104,7 +104,7 @@ module.exports = {
      * @param table nombre de la tabla
      */
     delete(table) {
-        app.delete('/' + table + '/delete/:id', async (req, res) => {
+        app.delete('/' + table + '/delete/:id', isLoggedIn, async (req, res) => {
             const { id } = req.params;
             const result = await connection.query( `DELETE FROM ${table}  WHERE id = ${id}` );
             //console.log(result)
