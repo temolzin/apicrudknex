@@ -120,7 +120,7 @@ router.post('/api/register' ,  async (req, res) => {
     };
     //console.log(newUser)
     newUser.password = await helpers.encryptPassword(password);
-    console.log(newUser)
+    //console.log(newUser)
     const result = await pool.query('INSERT INTO users SET ? ', newUser);
 
     newUser.id = result.insertId;
