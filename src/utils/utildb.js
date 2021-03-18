@@ -56,13 +56,14 @@ module.exports = {
                 objInsert[item] = req.body[item];           //console.log(req.body[item]);
             });
             //console.log(objInsert)
-            const result = await connection.query(`INSERT INTO ${table} SET ? ` , objInsert);
-            //console.log(result);
-            if(result.affectedRows != 0){
-                return res.json(result)
-            }else{
-                return res.json( {message: `fail to Insert ${table}`} );
-            }         
+            await connection.query(`INSERT INTO ${table} SET ? `, objInsert, (error, result) => {
+                if (error){
+                    return res.json(error);
+                }
+                if(result){
+                    return res.json(result);
+                }
+            });
         });
     },
 
@@ -89,13 +90,14 @@ module.exports = {
             });
             sqlUpdate +=  cadenaUpdate + ` WHERE id = ${id} ;`;
             //console.log(sqlUpdate);
-            const result = await connection.query(sqlUpdate);
-            //console.log(result)
-            if(result.affectedRows != 0){
-                return res.json(result)
-            }else{
-                return res.json( {message: `fail to update ${table}`} );
-            }
+            await connection.query(sqlUpdate, (error, result) => {
+                if (error){
+                    return res.json(error);
+                }
+                if(result){
+                    return res.json(result);
+                }
+            });
         });
     },
 
@@ -106,13 +108,14 @@ module.exports = {
     delete(table) {
         app.delete('/' + table + '/delete/:id', isLoggedIn, async (req, res) => {
             const { id } = req.params;
-            const result = await connection.query( `DELETE FROM ${table}  WHERE id = ${id}` );
-            //console.log(result)
-            if(result.affectedRows != 0){
-                return res.json(result)
-            }else{
-                return res.json( {message: `fail to delete ${table}`} );
-            }
+            const result = await connection.query( `DELETE FROM ${table}  WHERE id = ${id}`, (error, result) => {
+                if (error){
+                    return res.json(error);
+                }
+                if(result){
+                    return res.json(result);
+                }
+            });
         });
     },
 }
