@@ -1,7 +1,7 @@
 const db = require('../utils/utildb');
 const table = 'agente';
-const arrayinsert = ["id", "name"];
-const arrayupdate = ["name"];
+const arrayinsert = ["id", "username", "fullname"];
+const arrayupdate = ["username", "fullname"];
 
 db.read(table);
 db.readbyid(table);
