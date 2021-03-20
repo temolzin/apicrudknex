@@ -1,33 +1,43 @@
 const express = require('express');
-const mysql = require('mysql');
-
 const app = express.Router();
 
 const connection = require('../database');
 
-const { isLoggedIn } = require('../lib/auth')
+const { isLoggedIn } = require('../lib/auth');
 
 module.exports = {
     app,
     read(table) {
-        app.get('/' + table + '/read', isLoggedIn, (req, res) => {
+        app.get('/' + table + '/read', (req, res) => {
             const sql = 'SELECT * FROM ' + table;
-    
-            connection.query(sql, (error, results) => {
+            connection.connect()
+                .then((client) => {
+                    client.query(sql)
+                        .then(result => {
+                            res.json(result['rows']);
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+            /*connection.query(sql, (error, results) => {
                 if (error) throw error;
                 if (results.length > 0) {
                     res.json(results);
                 } else {
                     res.send('Not result');
                 }
-            });
+            });*/
         });
     },
 
     readbyid(table) {
-        app.get('/' + table + '/read/:id', isLoggedIn, (req, res) => {
+        app.get('/' + table + '/read/:id', (req, res) => {
             const { id } = req.params;
-            const sql = `SELECT * FROM  ${table}  WHERE id = ${id}`;
+            const sql = `SELECT * FROM  ${table}  WHERE id_` + table +  `= ${id}`;
             connection.query(sql, (error, result) => {
                 if (error) throw error;
 
@@ -47,7 +57,7 @@ module.exports = {
      * ejemplo: const arreglo = {'name', 'password'}
      */
     insert(table, arrayinsert) {
-        app.post('/' + table + '/insert', isLoggedIn, (req, res) => {
+        app.post('/' + table + '/insert', (req, res) => {
             const sql = 'INSERT INTO ' + table + ' SET ?';
             let objInsert = {};
             arrayinsert.forEach(function (item, index) {
@@ -63,7 +73,7 @@ module.exports = {
     },
 
     update(table, arrayupdate) {
-        app.put('/' + table + '/update/:id', isLoggedIn, (req, res) => {
+        app.put('/' + table + '/update/:id', (req, res) => {
             const { id } = req.params;
             let sqlUpdate = `UPDATE ` + table +  ` SET `;
             let cadenaUpdate = "";
@@ -73,7 +83,7 @@ module.exports = {
                 cadenaUpdate += item + ' = ' + `'` + req.body[item] + `'` + ' ';
             });
 
-            sqlUpdate +=  cadenaUpdate + ` WHERE id =${id}`;
+            sqlUpdate +=  cadenaUpdate + ` WHERE id_` + table + ` =${id}`;
             console.log(sqlUpdate);
             connection.query(sqlUpdate, error => {
                 if (error) throw error;
@@ -83,9 +93,9 @@ module.exports = {
     },
 
     delete(table) {
-        app.delete('/' + table + '/delete/:id', isLoggedIn, (req, res) => {
+        app.delete('/' + table + '/delete/:id', (req, res) => {
             const { id } = req.params;
-            const sql = `DELETE FROM ` + table + ` WHERE id = ${id}`;
+            const sql = `DELETE FROM ` + table + ` WHERE id_` + table + ` = ${id}`;
 
             connection.query(sql, error => {
                 if (error) throw error;

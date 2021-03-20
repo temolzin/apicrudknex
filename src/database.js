@@ -1,14 +1,25 @@
-//modulo de conexion con mysql
-const mysql = require('mysql');
+//modulo de conexion con postgres
+const { Pool } = require('pg');
 const { promisify }= require('util');
 
 //archivo de configuracion de los parametros generales de la base de datos
 const { database } = require('./keys');
 
-const pool = mysql.createPool(database);
+const { Client } = require('pg')
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'klanetcrm',
+  password: 'root',
+  port: 5432,
+});
+
+pool.on('error', (err, client) => {
+  console.error('Error:', err);
+});
 
 //conexion de la base de datos
-pool.getConnection((err, connection) => {
+/*pool.getConnection((err, connection) => {
   if (err) {
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
       console.error('Database connection was closed.');
@@ -25,9 +36,9 @@ pool.getConnection((err, connection) => {
   console.log('DB is Connected');
 
   return;
-});
+});*/
 
 // Promisify Pool Querys
-pool.query = promisify(pool.query);
+//pool.query = promisify(pool.query);
 
 module.exports = pool;

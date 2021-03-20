@@ -4,8 +4,9 @@ module.exports = {
         //limite de conexiones
         connectionLimit: 10,
         host: 'localhost',
-        user: 'root',
-        password: '',
-        database: 'db_links'
+        user: 'postgres',
+        password: 'root',
+        database: 'klanetcrm',
+        port: 5432,
     }
 };

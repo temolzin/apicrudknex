@@ -15,7 +15,10 @@ const passport = require('passport');
 //escritura de mensajes en flash para las sesiones
 const flash = require('connect-flash');
 //inicalizar la conexxion de la base de datos con la sesion
-const MySQLStore = require('express-mysql-session')(session);
+//const MySQLStore = require('express-mysql-session')(session);
+//Conexion con POSTGRESQL
+var PostgreSqlStore = require('connect-pg-simple')(session);
+
 //Analice los cuerpos de las solicitudes entrantes en un middleware
 const bodyParser = require('body-parser');
 //Analizar el encabezado cokkie y completa req.cookies con un objeto codificado
@@ -63,10 +66,11 @@ app.use(session({
   secret: 'CRM_enthous_local#',
   resave: true,
   saveUninitialized: false,
-  store: new MySQLStore(database),
+  //postgres://USERNAME:PASSWORD@HOST_NAME:PORT/DB_NAME
+  //store: new PostgreSqlStore('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database),
   //cookie: {domain: 'localhost:4000'}
 }));
-
+console.log('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database);
 //paquete flash para mensajes en la sesion
 app.use(flash());
 //inicializacion de passport
