@@ -67,7 +67,7 @@ app.use(session({
   resave: true,
   saveUninitialized: false,
   //postgres://USERNAME:PASSWORD@HOST_NAME:PORT/DB_NAME
-  store: new PostgreSqlStore('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database),
+  //store: new PostgreSqlStore('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database),
   //cookie: {domain: 'localhost:4000'}
 }));
 console.log('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database);
@@ -89,7 +89,7 @@ app.use((req, res, next) => {
 
 // routes
 app.use(require('./routes/index'));
-app.use(require('./routes/authentication'));
+/*app.use(require('./routes/authentication'));
 app.use(require('./routes/cliente'));
 app.use(require('./routes/agente'));
 app.use(require('./routes/bundle'));
@@ -122,7 +122,8 @@ app.use(require('./routes/submodulos'));
 app.use(require('./routes/sucursal'));
 app.use(require('./routes/territorio'));
 app.use(require('./routes/usuario'));
-app.use(require('./routes/wishlist'));
+app.use(require('./routes/wishlist'));*/
+app.use(require('./routes/ejemplo'));
 
 // carpeta public
 app.use(express.static(path.join(__dirname, 'public')));
