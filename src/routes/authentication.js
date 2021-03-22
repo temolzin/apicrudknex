@@ -60,6 +60,8 @@ router.post('/api/login', (req, res, next) => {
   req.session.secret = ""
   req.logOut();
 
+  const token = ''; 
+
   return passport.authenticate('local.signin', { session: false }, (err, passportUser, info) => {
     //console.log('apiiiiii: ',passportUser)
     if(err) {
@@ -67,25 +69,23 @@ router.post('/api/login', (req, res, next) => {
     }
     
     if(passportUser) {
-      req.session.user = passportUser;
       //console.log(passportUser)
-      ///token jwt
-      const secret = randomstring.generate({
-        length: 15,
-        charset: 'alphabetic'
-      });
-
-      req.session.secret = secret;
+      //cadena secreta para la proteger sesión
+      const secret = randomstring.generate( { length: 15, charset: 'alphabetic' } );
       
-      const token = jwt.sign({
-        user: passportUser
-      },
-        secret
-      );
-
+      ///token jwt
+      const token = jwt.sign( { user: passportUser } , secret );
+      passportUser.token = token
+      //actualizamos el token de sesion en base de datos
+      const result = pool.query('UPDATE users set ? WHERE id = ?', [passportUser, passportUser.id]);
+            
+      req.session.secret = secret;
       req.session.token = token;
+      req.session.user = passportUser;
+        
+      res.json( {message: 'success', code: '200', info: 'ok', user: passportUser} );
+      
       //console.log(token)
-      res.json( {message: 'success', code: '200', info: 'ok', user: passportUser, token: token} );
     }else{
       res.json( {message: 'Incorrect', code: '400', info: 'Bad Request'} );
     }
@@ -120,7 +120,7 @@ router.post('/api/register' ,  async (req, res) => {
   };
   //console.log(newUser)
   newUser.password = await helpers.encryptPassword(password);
-  console.log(newUser)
+  //console.log(newUser)
   const result = await pool.query('INSERT INTO users SET ? ', newUser);
 
   newUser.id = result.insertId;
@@ -133,7 +133,10 @@ router.post('/api/register' ,  async (req, res) => {
 });
 
 //cerrar sesion
-router.get('/api/logout', (req, res) => {
+router.get('/api/logout', async (req, res) => {
+  //eliminamos token de sesion
+  req.session.user.token = "";
+  const result = await pool.query('UPDATE users set ? WHERE id = ?', [req.session.user, req.session.user.id]);
   req.session.user = "";
   req.session.token = "";
   req.session.secret = ""
