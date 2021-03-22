@@ -48,11 +48,11 @@ const { isLoggedIn } = require('../lib/auth');
 router.post('/api/login', (req, res, next) => {
     const {username, password} = req.body;
     if (!username) {
-        res.json( {message: 'Incorrect', code: '401', info: 'Unauthorized'} );
+        res.json({message: 'Incorrect', code: '401', info: 'Unauthorized'});
     }
 
     if (!password) {
-        res.json( {message: 'Incorrect', code: '401', info: 'Unauthorized'} );
+        res.json({message: 'Incorrect', code: '401', info: 'Unauthorized'});
     }
 
     req.session.user = "";
@@ -60,38 +60,73 @@ router.post('/api/login', (req, res, next) => {
     req.session.secret = ""
     req.logOut();
 
-    return passport.authenticate('local.signin', { session: false }, (err, passportUser, info) => {
+    const token = '';
+
+    return passport.authenticate('local.signin', {session: false}, (err, passportUser, info) => {
         //console.log('apiiiiii: ',passportUser)
-        if(err) {
+        if (err) {
             return next(err);
         }
 
-        if(passportUser) {
-            req.session.user = passportUser;
+        if (passportUser) {
             //console.log(passportUser)
+            //cadena secreta para la proteger sesión
+            const secret = randomstring.generate({length: 15, charset: 'alphabetic'});
+
             ///token jwt
-            const secret = randomstring.generate({
-                length: 15,
-                charset: 'alphabetic'
-            });
+            const token = jwt.sign({user: passportUser}, secret);
+            passportUser.token = token
+            //actualizamos el token de sesion en base de datos
+            const result = pool.query('UPDATE users set ? WHERE id = ?', [passportUser, passportUser.id]);
 
             req.session.secret = secret;
-
-            const token = jwt.sign({
-                    user: passportUser
-                },
-                secret
-            );
-
             req.session.token = token;
-            //console.log(token)
-            res.json( {message: 'success', code: '200', info: 'ok', user: passportUser, token: token} );
-        }else{
-            res.json( {message: 'Incorrect', code: '400', info: 'Bad Request'} );
-        }
-    })(req, res, next);
-});
+            req.session.user = passportUser;
 
+            res.json({message: 'success', code: '200', info: 'ok', user: passportUser});
+
+            //console.log(token)
+        } else {
+            res.json({message: 'Incorrect', code: '400', info: 'Bad Request'});
+        }
+
+        req.session.user = "";
+        req.session.token = "";
+        req.session.secret = ""
+        req.logOut();
+
+        return passport.authenticate('local.signin', {session: false}, (err, passportUser, info) => {
+            //console.log('apiiiiii: ',passportUser)
+            if (err) {
+                return next(err);
+            }
+
+            if (passportUser) {
+                req.session.user = passportUser;
+                //console.log(passportUser)
+                ///token jwt
+                const secret = randomstring.generate({
+                    length: 15,
+                    charset: 'alphabetic'
+                });
+
+                req.session.secret = secret;
+
+                const token = jwt.sign({
+                        user: passportUser
+                    },
+                    secret
+                );
+
+                req.session.token = token;
+                //console.log(token)
+                res.json({message: 'success', code: '200', info: 'ok', user: passportUser, token: token});
+            } else {
+                res.json({message: 'Incorrect', code: '400', info: 'Bad Request'});
+            }
+        })(req, res, next);
+    });
+});
 //obtener el usuario que esta logeado actualmente
 router.get('/api/profile', isLoggedIn,  (req, res) => {
     return res.json({ message: 'success', code: '200', info: 'isLoggin', user: req.session.user })
@@ -106,10 +141,6 @@ router.post('/api/register' ,  async (req, res) => {
     }
 
     if (!password) {
-        res.json( {message: 'Incorrect', code: '401', info: 'Campos Requeridos'} );
-    }
-
-    if (!fullname) {
         res.json( {message: 'Incorrect', code: '401', info: 'Campos Requeridos'} );
     }
 
@@ -139,6 +170,39 @@ router.get('/api/logout', (req, res) => {
     req.session.secret = ""
     req.logOut();
     res.json( {message: 'success', code: '200', info: 'logout'} );
+  if (!fullname) {
+    res.json( {message: 'Incorrect', code: '401', info: 'Campos Requeridos'} );
+  }
+  
+  let newUser = {
+    fullname,
+    username,
+    password
+  };
+  //console.log(newUser)
+  newUser.password = helpers.encryptPassword(password);
+  //console.log(newUser)
+  const result = pool.query('INSERT INTO users SET ? ', newUser);
+
+  newUser.id = result.insertId;
+  //console.log('id de insercion', result.insertId)
+  if(result.affectedRows != 0){
+    return res.json({ message: 'success', code: '200', info: 'Register', id: result.insertId })
+  }else{
+    res.json( {message: 'fail', code: '400', info: 'Bad Request'} );
+  }
+});
+
+//cerrar sesion
+router.get('/api/logout', async (req, res) => {
+  //eliminamos token de sesion
+  req.session.user.token = "";
+  const result = await pool.query('UPDATE users set ? WHERE id = ?', [req.session.user, req.session.user.id]);
+  req.session.user = "";
+  req.session.token = "";
+  req.session.secret = ""
+  req.logOut();
+  res.json( {message: 'success', code: '200', info: 'logout'} );
 });
 
 //si la pagina no existe
