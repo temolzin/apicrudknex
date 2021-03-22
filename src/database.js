@@ -7,11 +7,11 @@ const { database } = require('./keys');
 
 const { Client } = require('pg')
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'klanetcrm',
-  password: 'root',
-  port: 5432,
+  user: database.user,
+  host: database.host,
+  database: database.database,
+  password: database.password,
+  port: database.port,
 });
 
 pool.on('error', (err, client) => {

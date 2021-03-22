@@ -67,7 +67,7 @@ app.use(session({
   resave: true,
   saveUninitialized: false,
   //postgres://USERNAME:PASSWORD@HOST_NAME:PORT/DB_NAME
-  //store: new PostgreSqlStore('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database),
+  store: new PostgreSqlStore('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database),
   //cookie: {domain: 'localhost:4000'}
 }));
 console.log('postgres://' + database.user + ':' + database.password + '@' + database.host + ':5432/' + database.database);
