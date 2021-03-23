@@ -6,7 +6,7 @@ module.exports = {
         host: 'localhost',
         user: 'postgres',
         password: 'root',
-        database: 'klanetcrm',
+        database: 'bdknexpg',
         port: 5432,
     }
 };
