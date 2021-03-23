@@ -124,6 +124,7 @@ app.use(require('./routes/territorio'));
 app.use(require('./routes/usuario'));
 app.use(require('./routes/wishlist'));*/
 app.use(require('./routes/ejemplo'));
+app.use(require('./routes/ejemplo2'));
 
 // carpeta public
 app.use(express.static(path.join(__dirname, 'public')));
